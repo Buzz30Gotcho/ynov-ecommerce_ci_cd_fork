@@ -3,7 +3,7 @@ const router = express.Router();
 const products = require('../data/products');
 
 const featureFlags = require('../config/featureFlags');
-
+//const featureFlagsConfig = require('../config/featureFlags');
 //const FEATURE_V2_PRODUCTS = process.env.FEATURE_V2_PRODUCTS === 'true';
 
 
