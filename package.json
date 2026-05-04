@@ -8,9 +8,9 @@
     "dev": "node --watch src/index.js",
     "lint": "eslint src/",
     "prepare": "husky",
-    "test": "mocha \"src/test/**/*.js\"",
-    "test:unit": "mocha \"src/test/**/*_tests.js\" \"src/test/products_logic.test.js\"",
-    "test:integration": "mocha \"src/test/integration_sqlite.test.js\" \"src/test/orders_routes.test.js\""
+    "test": "jest --coverage",
+    "test:unit": "jest src/test",
+    "test:integration": "jest src/test"
   },
   "keywords": [],
   "author": "",
@@ -23,9 +23,8 @@
   "devDependencies": {
     "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^18.4.3",
-    "chai": "^6.2.2",
     "husky": "^9.0.0",
-    "mocha": "^11.7.5",
+    "jest": "^30.3.0",
     "supertest": "^7.2.2"
   }
 }

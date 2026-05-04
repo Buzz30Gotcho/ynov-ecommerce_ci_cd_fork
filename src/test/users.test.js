@@ -1,46 +1,39 @@
 const users = require('../data/users');
-const { expect } = require('chai');
 
 describe('users', () => {
     it('devrait contenir un tableau', () => {
-        expect(users).to.be.an('array');
+        expect(Array.isArray(users)).toBe(true);
     });
 
     it('devrait avoir des utilisateurs avec un id', () => {
-        expect(users[0]).to.have.property('id');
+        expect(users[0]).toHaveProperty('id');
     });
 
     it('devrait avoir des utilisateurs avec un nom', () => {
-        expect(users[0]).to.have.property('name');
+        expect(users[0]).toHaveProperty('name');
     });
+
     it('id 1 devrait être Alice Martin', () => {
         const user = users.find(u => u.id === 1);
-        expect(user).to.exist;
-        expect(user.name).to.equal('Alice Martin');
+        expect(user).toBeDefined();
+        expect(user.name).toBe('Alice Martin');
     });
 
     it('id 2 devrait être Bob Dupont', () => {
         const user = users.find(u => u.id === 2);
-        expect(user).to.exist;
-        expect(user.name).to.equal('Bob Dupont');
-    });
-
-    it('id 2 devrait être Bob Dupont', () => {
-        const user = users.find(u => u.id === 2);
-        expect(user).to.exist;
-        expect(user.name).to.equal('Bob Dupont');
+        expect(user).toBeDefined();
+        expect(user.name).toBe('Bob Dupont');
     });
 
     it('id 3 devrait être Charlie Leroy', () => {
         const user = users.find(u => u.id === 3);
-        expect(user).to.exist;
-        expect(user.name).to.equal('Charlie Leroy');
+        expect(user).toBeDefined();
+        expect(user.name).toBe('Charlie Leroy');
     });
 
     it('id 3 devrait avoir comme email charlie@example.com', () => {
         const user = users.find(u => u.id === 3);
-        expect(user).to.exist;
-        expect(user.email).to.equal('charlie@example.com');
+        expect(user).toBeDefined();
+        expect(user.email).toBe('charlie@example.com');
     });
-
 });
