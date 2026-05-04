@@ -1,5 +1,4 @@
 const request = require('supertest');
-const { expect } = require('chai');
 const app = require('../index');
 const orders = require('../data/orders');
 
@@ -15,14 +14,15 @@ describe('orders API logic', () => {
 
     it('GET /api/orders renvoie toutes les commandes', async () => {
         const res = await request(app).get('/api/orders');
-        expect(res.status).to.equal(200);
-        expect(res.body).to.be.an('array').with.lengthOf(3);
+        expect(res.status).toBe(200);
+        expect(Array.isArray(res.body)).toBe(true);
+        expect(res.body).toHaveLength(3);
     });
 
     it('POST /api/orders valide les données manquantes', async () => {
         const res = await request(app).post('/api/orders').send({});
-        expect(res.status).to.equal(400);
-        expect(res.body.error).to.equal('userId and productIds[] are required');
+        expect(res.status).toBe(400);
+        expect(res.body.error).toBe('userId and productIds[] are required');
     });
 
     it('POST /api/orders crée une commande pending', async () => {
@@ -30,10 +30,10 @@ describe('orders API logic', () => {
             .post('/api/orders')
             .send({ userId: 2, productIds: [1, 3] });
 
-        expect(res.status).to.equal(201);
-        expect(res.body).to.include({ userId: 2, status: 'pending', total: 0 });
-        expect(res.body.productIds).to.deep.equal([1, 3]);
-        expect(res.body.id).to.equal(4);
+        expect(res.status).toBe(201);
+        expect(res.body).toMatchObject({ userId: 2, status: 'pending', total: 0 });
+        expect(res.body.productIds).toEqual([1, 3]);
+        expect(res.body.id).toBe(4);
     });
 
     it('PATCH /api/orders/:id/status met à jour le statut', async () => {
@@ -41,9 +41,9 @@ describe('orders API logic', () => {
             .patch('/api/orders/2/status')
             .send({ status: 'shipped' });
 
-        expect(res.status).to.equal(200);
-        expect(res.body.status).to.equal('shipped');
-        expect(orders.find(o => o.id === 2).status).to.equal('shipped');
+        expect(res.status).toBe(200);
+        expect(res.body.status).toBe('shipped');
+        expect(orders.find(o => o.id === 2).status).toBe('shipped');
     });
 
     it('PATCH /api/orders/:id/status rejette un statut invalide', async () => {
@@ -51,13 +51,13 @@ describe('orders API logic', () => {
             .patch('/api/orders/2/status')
             .send({ status: 'invalid' });
 
-        expect(res.status).to.equal(400);
-        expect(res.body.error).to.include('status must be one of');
+        expect(res.status).toBe(400);
+        expect(res.body.error).toMatch(/status must be one of/);
     });
 
     it('GET /api/orders/:id renvoie 404 si la commande n’existe pas', async () => {
         const res = await request(app).get('/api/orders/999');
-        expect(res.status).to.equal(404);
-        expect(res.body.error).to.equal('Order not found');
+        expect(res.status).toBe(404);
+        expect(res.body.error).toBe('Order not found');
     });
 });

@@ -1,15 +1,11 @@
-const { expect } = require('chai');
 const request = require('supertest');
 const express = require('express');
 const { initDatabase, closeDatabase, runAsync, getAsync, allAsync, initializeTables } = require('../db/database');
 
 let app;
-let server;
 
 // Avant tous les tests : créer l'app et la DB
-before(async function () {
-    this.timeout(10000);
-
+beforeAll(async () => {
     // Initialiser la DB en mémoire
     await initDatabase();
     await initializeTables();
@@ -113,13 +109,12 @@ before(async function () {
             res.status(500).json({ error: 'Database error' });
         }
     });
-});
+}, 10000);
 
 // Après tous les tests : fermer la DB
-after(async function () {
-    this.timeout(5000);
+afterAll(async () => {
     await closeDatabase();
-});
+}, 5000);
 
 describe('Integration Tests - SQLite', () => {
     describe('Products', () => {
@@ -128,15 +123,16 @@ describe('Integration Tests - SQLite', () => {
                 .post('/api/products')
                 .send({ name: 'Laptop', price: 999.99, stock: 5 });
 
-            expect(res.status).to.equal(201);
-            expect(res.body).to.include({ name: 'Laptop', price: 999.99, stock: 5 });
-            expect(res.body.id).to.exist;
+            expect(res.status).toBe(201);
+            expect(res.body).toMatchObject({ name: 'Laptop', price: 999.99, stock: 5 });
+            expect(res.body.id).toBeDefined();
         });
 
         it('GET /api/products retourne tous les produits', async () => {
             const res = await request(app).get('/api/products');
-            expect(res.status).to.equal(200);
-            expect(res.body).to.be.an('array').with.lengthOf.at.least(1);
+            expect(res.status).toBe(200);
+            expect(Array.isArray(res.body)).toBe(true);
+            expect(res.body.length).toBeGreaterThanOrEqual(1);
         });
 
         it('POST /api/products valide les champs obligatoires', async () => {
@@ -144,8 +140,8 @@ describe('Integration Tests - SQLite', () => {
                 .post('/api/products')
                 .send({ stock: 10 });
 
-            expect(res.status).to.equal(400);
-            expect(res.body.error).to.include('name and price are required');
+            expect(res.status).toBe(400);
+            expect(res.body.error).toMatch(/name and price are required/);
         });
     });
 
@@ -155,14 +151,15 @@ describe('Integration Tests - SQLite', () => {
                 .post('/api/users')
                 .send({ name: 'Alice', email: 'alice@example.com' });
 
-            expect(res.status).to.equal(201);
-            expect(res.body).to.include({ name: 'Alice', email: 'alice@example.com', role: 'customer' });
+            expect(res.status).toBe(201);
+            expect(res.body).toMatchObject({ name: 'Alice', email: 'alice@example.com', role: 'customer' });
         });
 
         it('GET /api/users retourne tous les utilisateurs', async () => {
             const res = await request(app).get('/api/users');
-            expect(res.status).to.equal(200);
-            expect(res.body).to.be.an('array').with.lengthOf.at.least(1);
+            expect(res.status).toBe(200);
+            expect(Array.isArray(res.body)).toBe(true);
+            expect(res.body.length).toBeGreaterThanOrEqual(1);
         });
 
         it('POST /api/users rejette les emails en doublon', async () => {
@@ -174,8 +171,8 @@ describe('Integration Tests - SQLite', () => {
                 .post('/api/users')
                 .send({ name: 'Bob2', email: 'bob@example.com' });
 
-            expect(res.status).to.equal(400);
-            expect(res.body.error).to.include('Email already exists');
+            expect(res.status).toBe(400);
+            expect(res.body.error).toMatch(/Email already exists/);
         });
 
         it('POST /api/users valide les champs obligatoires', async () => {
@@ -183,8 +180,8 @@ describe('Integration Tests - SQLite', () => {
                 .post('/api/users')
                 .send({ name: 'Charlie' });
 
-            expect(res.status).to.equal(400);
-            expect(res.body.error).to.include('name and email are required');
+            expect(res.status).toBe(400);
+            expect(res.body.error).toMatch(/name and email are required/);
         });
     });
 
@@ -201,9 +198,9 @@ describe('Integration Tests - SQLite', () => {
                 .post('/api/orders')
                 .send({ userId, productIds: [1, 2] });
 
-            expect(res.status).to.equal(201);
-            expect(res.body).to.include({ userId, status: 'pending', total: 0 });
-            expect(res.body.id).to.exist;
+            expect(res.status).toBe(201);
+            expect(res.body).toMatchObject({ userId, status: 'pending', total: 0 });
+            expect(res.body.id).toBeDefined();
         });
 
         it('PATCH /api/orders/:id/status met à jour le statut', async () => {
@@ -222,8 +219,8 @@ describe('Integration Tests - SQLite', () => {
                 .patch(`/api/orders/${orderId}/status`)
                 .send({ status: 'shipped' });
 
-            expect(res.status).to.equal(200);
-            expect(res.body.status).to.equal('shipped');
+            expect(res.status).toBe(200);
+            expect(res.body.status).toBe('shipped');
         });
 
         it('PATCH /api/orders/:id/status rejette un statut invalide', async () => {
@@ -240,8 +237,8 @@ describe('Integration Tests - SQLite', () => {
                 .patch(`/api/orders/${orderRes.body.id}/status`)
                 .send({ status: 'invalid_status' });
 
-            expect(res.status).to.equal(400);
-            expect(res.body.error).to.include('status must be one of');
+            expect(res.status).toBe(400);
+            expect(res.body.error).toMatch(/status must be one of/);
         });
 
         it('POST /api/orders valide les champs obligatoires', async () => {
@@ -249,8 +246,8 @@ describe('Integration Tests - SQLite', () => {
                 .post('/api/orders')
                 .send({ userId: 1 });
 
-            expect(res.status).to.equal(400);
-            expect(res.body.error).to.include('userId and productIds');
+            expect(res.status).toBe(400);
+            expect(res.body.error).toMatch(/userId and productIds/);
         });
     });
 });
