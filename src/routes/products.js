@@ -63,3 +63,5 @@ router.post('/', (req, res) => {
 });
 
 module.exports = router;
+module.exports.getProductsV1 = getProductsV1;
+module.exports.getProductsV2 = getProductsV2;
